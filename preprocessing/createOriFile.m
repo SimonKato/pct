@@ -28,18 +28,8 @@ for i = 1: length(patients)
                 % select slice range along z-axis, and save for each t_i 
                 CTP_vol_ori(:,:,t_i,:) = data_ctp(:,:,131:10:230);
             end
-            mkdir(fullfile(datasetPath, patient.name,'/CTP_vol_ori/'))
-        save(fullfile(datasetPath, patient.name, '/CTP_vol_ori', '/CTP_vol_ori.mat'),'CTP_vol_ori');
+        save(fullfile(outputFolder ,strcat(patient.name, 'CTP_vol_ori.mat')),'CTP_vol_ori');
         end
     end
 
-end
-
-for i = 1 : length(patients)
-    %fprintf('--------------------------------------Starting with Directory %i-----------------------------------\n', dirIndex);
-    
-
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        fprintf('--------------------------------------Done with Directory %i-----------------------------------\n', dirIndex)
-        dirIndex = dirIndex + 1;
 end

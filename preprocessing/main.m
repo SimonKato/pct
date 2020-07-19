@@ -20,6 +20,13 @@
 %
 %Examples: 
 %   main segmentPM datasetPath=../../data/PerfusionMaps outputPath=../../data/segmentedPerfusionMaps segmentPM
+%
+%Important Notes:
+%   Most of the current functions will create a special folder within the
+%   outputFolder path appropiately named after the function called. Subject
+%   to change, however for the sake of calling multiple functions at once,
+%   this works best.
+%
 
 function main(varargin) 
 
@@ -33,9 +40,12 @@ createOri = false;
 createGT = false;
 convertNCCT = false;
 segmentPM = false;
+deidentify = false;
 
 %%%%%%%%%%%%%%%%%%%%%%Checking input arguments%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 for i = 1: length(numArgs)
+    %Consider using switch for readability
+    
     if strcmpi(varargin{i}, 'ori') %input argument
         createOri = true;
     elseif strcmpi(varargin{i}, 'gt') %input argument
@@ -56,17 +66,62 @@ for i = 1: length(numArgs)
         segmentPM = true;
     elseif strcmpi(varargin{i}, 'convertNCCT')
         convertNCCT = true;
+    elseif strcmpi(varargin{i}, 'deidentify')
+        deidentify = true;
     end
 end
 
 datasetPath = createPath(datasetPath);
 
-if createOri
+if deidentify
+    deidentify(datasetPath,outputFolder)
+    
+    datasetPath = outputFolder;
+end
+
+if createGT && createOri
+    try
+        mkdir(outputFolder,'vol_ori/');
+    catch
+    end
+    
+    try
+        mkdir(outputFolder,'GT/');
+    catch
+    end
+    
+    createOriFile(datasetPath, strcat(outputFolder, 'vol_ori/'));
+    createGTFile(strcat(outputFolder,'vol_ori/'),strcat(outputFolder,'GT/'));
+elseif createOri
+    try
+        mkdir(outputFolder,'vol_ori/');
+    catch
+    end
+    
+    createOriFile(datasetPath, strcat(outputFolder,'vol_ori/'));
 elseif createGT
-elseif segmentPM
-    segmentPerfusionMaps(datasetPath, outputPath)
-elseif convertNCCT
-    convertNCCT_MAT(datasetPath,outputPath)
+    try
+        mkdir(outputFolder,'GT/');
+    catch
+    end
+    
+    createGTFile(datasetPath,strcat(outputFolder, 'GT/'));
+end
+
+if segmentPM
+    try
+        mkdir(outputFolder,'segmented_perfusion_maps/');
+    catch
+    end
+    segmentPerfusionMaps(datasetPath, strcat(outputPath,'segmented_perfusion_maps/'))
+end
+
+if convertNCCT
+    try
+        mkdir(outputFolder,'NCCTdicom_mit/');
+    catch
+    end
+    convertNCCT_MAT(datasetPath,strcat(outputPath,'NCCTdicom_mit/'))
 end
 
 end

@@ -4,11 +4,11 @@ function createGTFile(datasetPath)%%CTP_vol_ori = get the ori file created with 
 %Need to get all the CTP_vol_ori files, might be worth restructing how
 %createOriFile saves the file.
 files = dir(datasetPath);
-files = fixDir(files);
+files = fixDir(datasetPath);
 
-for fileNum = 1 : length(files)
+for file = 1 : length(files)
 
-    CTP_vol_ori = fullfile(datasetPath, files(fileNum).name);
+    CTP_vol_ori = fullfile(patientFolder, '/', 'CTP_vol_ori','/', 'CTP_vol_ori.mat');
 
     [Y,X,T,S] = size(CTP_vol_ori);
 
