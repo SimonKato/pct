@@ -15,14 +15,28 @@ if ~strcmp(outputFolder(end),'/')
     outputFolder = [outputFolder '/'];
 end
 
+try
+    mkdir(outputFolder, 'NCCT_mat')
+catch
+end
+
 inputFolder = createPath(inputFolder);
 outputFolder = createPath(outputFolder);
 
-inputDir = fixDir(inputFolder);
+patients = fixDir(inputFolder);
 
-for imageNum = 1: length(inputDir)
-    filepath = fullfile(inputFolder, inputDir(imageNum).name);
-    fileImage = dicomread(filepath);
+for patientNum = 1 : length(patients)
     
-    save(strcat(outputFolder, '_', num2str(imageNum)),'fileImage')
+    patientPics = dir(strcat(inputFolder,patients(patientNum).name));
+    patientPics = fixDir(patientPics);
+    
+    for imageNum = 1: length(patientPics)
+        filepath = fullfile(inputFolder, patients(patientNum).name, patientPics(imageNum).name);
+        fileImage = dicomread(filepath);
+        fileInfo = dicominfo(filepath);
+        
+        fileImage = fileInfo.RescaleSlope * fileImage + fileInfo.RescaleIntercept;
+    
+        save(strcat(outputFolder, 'NCCT_mat/', num2str(patientNum,'%04.f'), '_', num2str(imageNum)),'fileImage')
+    end
 end

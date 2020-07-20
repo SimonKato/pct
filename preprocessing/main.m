@@ -26,6 +26,12 @@
 %   to change, however for the sake of calling multiple functions at once,
 %   this works best.
 %
+%Alternative to using main.m is to create a script which calls the
+%functions which you need. The script must be in the same folder as the
+%functions you wish to use, this can be done with having script.m in the
+%same folder from the getgo, or cd() into folder as needed. Script might be
+%better?
+%
 
 function main(varargin) 
 

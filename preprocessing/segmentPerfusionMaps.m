@@ -39,23 +39,27 @@ for patientNum = 1 : length(patients)
         fileInfo = dicominfo(filepath);
         
         fileImage = fileInfo.RescaleSlope * fileImage + fileInfo.RescaleIntercept;
+        
+        fileImageSize = size(fileImage);
+        xsplit = fileImageSize(2)/3;
+        ysplit = fileImageSize(1)/2;
     
-        MIP = fileImage(1:512,1:512,:);
+        MIP = fileImage(1:ysplit, 1:xsplit,:);
         MIP = segmentPerfusionMap_IsolateImage(MIP);
         
-        rCBV =  fileImage(1:512,513:1024,:);
+        rCBV =  fileImage(1:ysplit,xsplit + 1:2*xsplit,:);
         rCBV = segmentPerfusionMap_IsolateImage(rCBV);
         
-        TTP = fileImage(1:512,1025:1536,:);
+        TTP = fileImage(1:ysplit,2*xsplit + 1:3*xsplit,:);
         TTP = segmentPerfusionMap_IsolateImage(TTP);
         
-        rCBF = fileImage(513:1024,1:512,:);
+        rCBF = fileImage(ysplit + 1: 2*ysplit,1:xsplit,:);
         rCBF = segmentPerfusionMap_IsolateImage(rCBF);
         
-        MTT = fileImage(513:1024, 513:1024,:);
+        MTT = fileImage(ysplit + 1: 2*ysplit, xsplit + 1:2*xsplit,:);
         MTT = segmentPerfusionMap_IsolateImage(MTT);
         
-        Delay = fileImage(513:1024, 1025:1536, :);
+        Delay = fileImage(ysplit + 1: 2*ysplit, 2*xsplit + 1:3*xsplit, :);
         Delay = segmentPerfusionMap_IsolateImage(Delay);
     
     

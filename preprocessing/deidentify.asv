@@ -1,14 +1,31 @@
-function deidentify(datasetPath, summaryFilesFolder)
+function deidentify(datasetPath, outputPath, patientNum)
+%Description: deidentifies PHI from patient folders within datasetPath.
+%Current behavior is to create folders within the same directory as
+%datasetPath.
+%
+%Input: datasetPath - location of folders contating dicom images which need
+%to be deidentified.
+%
+%Output: Creates a new file structure within outputPath which creates a new
+%folder for each previous patient with a unique ID created within the code
+%and then sorts the images by studyDescription and then SeriesDescriptions.
+%
+%Note: I changed some of the datasetPath to outputPath which might have
+%broken something, I am unsure currently.
 
-summaryFilesFolder = fullfile(genpath(cd),'Summary');
-if not isfolder(summaryFilesFolder)
+summaryFilesFolder = strcat(outputPath,'Summary/');
+if not(isfolder(summaryFilesFolder))
     mkdir(summaryFilesFolder);
 end
 
 subDirs = dir(datasetPath);
 
-dirIndex = 1;  % For Print statements and keeping track of row number in Summary 
-patientNum = 100;  % Used to generate the new patient ID, starts with 101 since first 100 has already been de-identified
+dirIndex = 1;  % For Print statements and keeping track of row number in Summary
+
+if ~exist('patientNum', 'var')
+    patientNum = 100;  % Used to generate the new patient ID, starts with 101 since first 100 has already been de-identified
+end
+
 alphabet = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','0','1','2','3','4','5','6','7','8','9'};
 
 emptyFolders = 0;
@@ -366,8 +383,8 @@ for i = 1 : length(subDirs)
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Creating Folder Structure%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         newCurDir = strcat(newID,'_', birthYear);
-        if not(isfolder(strcat(datasetPath, newCurDir)))
-            mkdir(strcat(datasetPath, newCurDir))
+        if not(isfolder(strcat(outputPath, newCurDir)))
+            mkdir(strcat(outputPath, newCurDir))
         end
         
         % The main folder
@@ -402,13 +419,13 @@ for i = 1 : length(subDirs)
         end
         
         
-        if not(isfolder(strcat(datasetPath , newCurDir , '/' , char(mainDir))))
-            mkdir(fullfile(datasetPath , newCurDir , '/' , char(mainDir)))
+        if not(isfolder(strcat(outputPath , newCurDir , '/' , char(mainDir))))
+            mkdir(fullfile(outputPath , newCurDir , '/' , char(mainDir)))
         end
         
         % Move file into its proper folder or create it and then move it
-        if isfolder(strcat(datasetPath , newCurDir , '/' , char(mainDir) , '/' , char(subDir)))
-            newPath = strcat(fullfile(datasetPath , newCurDir , '/' , char(mainDir) , '/' , char(subDir) , '/' , files(k).name), '.dcm');
+        if isfolder(strcat(outputPath , newCurDir , '/' , char(mainDir) , '/' , char(subDir)))
+            newPath = strcat(fullfile(outputPath , newCurDir , '/' , char(mainDir) , '/' , char(subDir) , '/' , files(k).name), '.dcm');
             gen_count = 0; err_count = 0;
             while gen_count == err_count
                 try
@@ -422,8 +439,8 @@ for i = 1 : length(subDirs)
                 gen_count=gen_count+1;
             end
         else
-            mkdir(fullfile(strcat(datasetPath , newCurDir , '/' , char(mainDir) , '/' , char(subDir))))
-            newPath = strcat(fullfile(datasetPath , newCurDir , '/' , char(mainDir) , '/' , char(subDir) , '/' , files(k).name), '.dcm');
+            mkdir(fullfile(strcat(outputPath , newCurDir , '/' , char(mainDir) , '/' , char(subDir))))
+            newPath = strcat(fullfile(outputPath , newCurDir , '/' , char(mainDir) , '/' , char(subDir) , '/' , files(k).name), '.dcm');
             gen_count = 0; err_count = 0;
             while gen_count == err_count
                 try
@@ -447,15 +464,7 @@ for i = 1 : length(subDirs)
         dirIndex = dirIndex + 1;
     end
 end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Delete The Old Folders and Files%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% This can be done during the inner loop however empty folders will not be deleted.
-
-%for curDir in subDirs:
-    %print('--------------------------------------Deleting Directory %s------------------------------------' % curDir)
-    %delete(datasetPath + curDir)
-    %print('--------------------------------------Done Deleting Directory %s-------------------------------' % curDir)
-  
+ 
 writetable(Summary, fullfile(summaryFilesFolder, 'Dataset Data.xlsx'))
 writetable(Summary, fullfile(summaryFilesFolder, 'Dataset Data.csv'), 'Delimiter', ',')
 fprintf('--------------------------------------Done with Everything-------------------------------------\n')

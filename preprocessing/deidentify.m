@@ -1,4 +1,4 @@
-function deidentify(datasetPath, outputPath)
+function deidentify(datasetPath, outputPath, patientNum)
 %Description: deidentifies PHI from patient folders within datasetPath.
 %Current behavior is to create folders within the same directory as
 %datasetPath.
@@ -20,8 +20,12 @@ end
 
 subDirs = dir(datasetPath);
 
-dirIndex = 1;  % For Print statements and keeping track of row number in Summary 
-patientNum = 100;  % Used to generate the new patient ID, starts with 101 since first 100 has already been de-identified
+dirIndex = 1;  % For Print statements and keeping track of row number in Summary
+
+if nargin == 2
+    patientNum = 100;  % Used to generate the new patient ID, starts with 101 since first 100 has already been de-identified
+end
+
 alphabet = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','0','1','2','3','4','5','6','7','8','9'};
 
 emptyFolders = 0;
@@ -394,6 +398,9 @@ for i = 1 : length(subDirs)
         if contains(seriesDescription, 'MIP')
             correctionIndex = find(seriesDescription == '.', 1, 'last')-1;
             subDirList = split(seriesDescription(1:correctionIndex),' ');
+        elseif contains(seriesDescription, 'OBL')
+            correctionIndex = find(seriesDescription == '.', 1, 'last') - 1;
+            subDirList = split(seriesDescirption(1:correctionIndex),' ');
         else
             subDirList = split(seriesDescription, ' ');
         end
