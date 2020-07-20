@@ -19,32 +19,51 @@ if ~strcmp(outputFolder(end),'/')
     outputFolder = [outputFolder '/'];
 end
 
+%Creates the output folders%
+mkdir(outputFolder, 'MIP')
+mkdir(outputFolder,'rCBV')
+mkdir(outputFolder,'TTP')
+mkdir(outputFolder,'rCBF')
+mkdir(outputFolder,'MTT')
+mkdir(outputFolder,'Delay')
+
 patients = fixDir(inputFolder);
-for patient = 1 : length(patients)
+for patientNum = 1 : length(patients)
     
-    patientPics = dir(strcat(inputFolder,patients.patient.name));
+    patientPics = dir(strcat(inputFolder,patients(patientNum).name));
     patientPics = fixDir(patientPics);
     
-    mkdir(strcat(outputFolder,'patient_',num2str(patient)))
-    tempOutput = strcat(outputFolder,'patient_',num2str(patient),'/');
-    
     for imageNum = 1: length(patientPics)
-        filepath = fullfile(inputFolder, patientPics(imageNum).name);
+        filepath = fullfile(inputFolder, patients(patientNum).name, patientPics(imageNum).name);
         fileImage = dicomread(filepath);
+        fileInfo = dicominfo(filepath);
+        
+        fileImage = fileInfo.RescaleSlope * fileImage + fileInfo.RescaleIntercept;
     
-        rCBF = fileImage(1:512,1:512,:);
-        MTT =  fileImage(1:512,513:1024,:);
-        Delay = fileImage(1:512,1025:1536,:);
-        rCBF_SVD = fileImage(513:1024,1:512,:);
-        MTT_SVD = fileImage(513:1024, 513:1024,:);
-        Delay_SVD = fileImage(513:1024, 1025:1536, :);
+        MIP = fileImage(1:512,1:512,:);
+        MIP = segmentPerfusionMap_IsolateImage(MIP);
+        
+        rCBV =  fileImage(1:512,513:1024,:);
+        rCBV = segmentPerfusionMap_IsolateImage(rCBV);
+        
+        TTP = fileImage(1:512,1025:1536,:);
+        TTP = segmentPerfusionMap_IsolateImage(TTP);
+        
+        rCBF = fileImage(513:1024,1:512,:);
+        rCBF = segmentPerfusionMap_IsolateImage(rCBF);
+        
+        MTT = fileImage(513:1024, 513:1024,:);
+        MTT = segmentPerfusionMap_IsolateImage(MTT);
+        
+        Delay = fileImage(513:1024, 1025:1536, :);
+        Delay = segmentPerfusionMap_IsolateImage(Delay);
     
     
-        save(strcat(tempOutput,'rCBF_',num2str(imageNum)),'rCBF');
-        save(strcat(tempOutput,'MTT_',num2str(imageNum)),'MTT');
-        save(strcat(tempOutput,'Delay_',num2str(imageNum)),'Delay');
-        save(strcat(tempOutput,'rCBF_SVD_',num2str(imageNum)),'rCBF_SVD');
-        save(strcat(tempOutput,'MTT_SVD_',num2str(imageNum)),'MTT_SVD');
-        save(strcat(tempOutput,'Delay_SVD_',num2str(imageNum)),'Delay_SVD');
+        save(strcat(outputFolder,'MIP/', num2str(patientNum,'%04.f'), '_', num2str(imageNum)),'MIP');
+        save(strcat(outputFolder,'rCBV/', num2str(patientNum,'%04.f'), '_', num2str(imageNum)),'rCBV');
+        save(strcat(outputFolder,'TTP/', num2str(patientNum,'%04.f'), '_', num2str(imageNum)),'TTP');
+        save(strcat(outputFolder,'rCBF/',num2str(patientNum,'%04.f'), '_', num2str(imageNum)),'rCBF');
+        save(strcat(outputFolder,'MTT/', num2str(patientNum,'%04.f'), '_', num2str(imageNum)),'MTT');
+        save(strcat(outputFolder,'Delay/', num2str(patientNum,'%04.f'), '_', num2str(imageNum)),'Delay');
     end
 end

@@ -4,8 +4,7 @@
 %   2) Within matlab command window type main [-arguments]
 %
 % Current arguments:
-%   Paths: ***Paths with spaces will not work ie folders with spaces will
-%   cause error
+%   Paths: ***Paths with spaces must have \ before space.
 %       datasetPath=(insert path to dataset relative or absolute path)
 %           *default value = ../data/
 %
@@ -19,7 +18,7 @@
 %       convertNCCT : converts NCCT image portion to .mat file type
 %
 %Examples: 
-%   main segmentPM datasetPath=../../data/PerfusionMaps outputPath=../../data/segmentedPerfusionMaps segmentPM
+%   main segmentPM datasetPath='../../data/Perfusion\ Maps' outputPath='../../data/segmentedPerfusion\ Maps' segmentPM
 %
 %Important Notes:
 %   Most of the current functions will create a special folder within the
@@ -33,9 +32,7 @@ function main(varargin)
 %%%%%%%%%%%%%%%%%%%%%%%%%%Generating Default variable values%%%%%%%%%%%%%%%
 
 datasetPath = '../data/'; %consider having a way of putting a dataset as an input parameter
-outputPath = '../data/output/';
-numInputs = size(varargin);
-numArgs = numInputs(2);
+outputPath = '../data/results/';
 createOri = false; 
 createGT = false;
 convertNCCT = false;
@@ -43,32 +40,33 @@ segmentPM = false;
 deidentify = false;
 
 %%%%%%%%%%%%%%%%%%%%%%Checking input arguments%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-for i = 1: length(numArgs)
+for curArg = varargin %1 : numArgs
     %Consider using switch for readability
+    curArg = char(curArg);
     
-    if strcmpi(varargin{i}, 'ori') %input argument
+    if strcmpi(curArg, 'ori') %input argument
         createOri = true;
-    elseif strcmpi(varargin{i}, 'gt') %input argument
+    elseif strcmpi(curArg, 'gt') %input argument
         createGT = true;
-    elseif contains(varargin{i}, 'datasetPath=')
-        lastIndex = find(varargin{i} == '=', 1);
-        datasetPath = varargin{i}(lastIndex:length(varargin{i}));
+    elseif contains(curArg, 'datasetPath=')
+        lastIndex = find(curArg == '=', 1);
+        datasetPath = curArg(lastIndex + 1:length(curArg));
         if ~strcmp(datasetPath(end),'/')
-            datasetPath = [inputFolder '/'];
+            datasetPath = [datasetPath '/'];
         end
-    elseif contains(varargin{i}, 'outputPath=')
-        lastIndex = find(varargin{i} == '=', 1);
-        datasetPath = varargin{i}(lastIndex:length(varargin{i}));
+    elseif contains(curArg, 'outputPath=')
+        lastIndex = find(curArg == '=', 1);
+        datasetPath = curArg(lastIndex + 1:length(curArg));
         if ~strcmp(outputPath(end),'/')
             outputPath = [inputFolder '/'];
         end
-    elseif strcmpi(varargin{i}, 'segmentPM')
+    elseif strcmpi(curArg, 'segmentPM')
         segmentPM = true;
-    elseif strcmpi(varargin{i}, 'convertNCCT')
+    elseif strcmpi(curArg, 'convertNCCT')
         convertNCCT = true;
-    elseif strcmpi(varargin{i}, 'deidentify')
+    elseif strcmpi(curArg, 'deidentify')
         deidentify = true;
-    end
+    end  
 end
 
 datasetPath = createPath(datasetPath);
