@@ -10,6 +10,9 @@ function deidentify(datasetPath, outputPath, patientNum)
 %folder for each previous patient with a unique ID created within the code
 %and then sorts the images by studyDescription and then SeriesDescriptions.
 %
+%PatientNum: Should be 1 lower than the number you wish to start with, ie.
+%put the number of already deidentified folders.
+%
 %Note: I changed some of the datasetPath to outputPath which might have
 %broken something, I am unsure currently.
 
@@ -110,7 +113,7 @@ for i = 1 : length(subDirs)
     
     if(length(files) > 1)
         for k = 1 : length(files)
-        disp(k);
+        %disp(k);
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Path to each individual file%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         if Gtype == 1
             filepath = fullfile(datasetPath, curDir.name, 'IMAGES', files(k).name);
@@ -400,13 +403,14 @@ for i = 1 : length(subDirs)
             subDirList = split(seriesDescription(1:correctionIndex),' ');
         elseif contains(seriesDescription, 'OBL')
             correctionIndex = find(seriesDescription == '.', 1, 'last') - 1;
-            subDirList = split(seriesDescirption(1:correctionIndex),' ');
+            subDirList = split(seriesDescription(1:correctionIndex),' ');
         else
             subDirList = split(seriesDescription, ' ');
         end
 
         subDirString = join(subDirList, '_');
         subDir = replace(subDirString,'/','-');
+        subDir = replace(subDir,'__','_');
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Sorting into smaller files%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % Must write these data to private fields :(

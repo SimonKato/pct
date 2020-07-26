@@ -12,10 +12,18 @@ for i = 1: length(patients)
     subDirs = dir(fullfile(datasetPath, '/', patient.name, '/', tempDir.name));
     subDirs = fixDir(subDirs);
     
+    badSave = CheckBadState(subDirs);
+    
     for j = 1 : length(subDirs)
-        if strcmp(subDirs(j).name, 'Perfusion_05_CE_Perfusion_Head_4D_CBP_DYNAMIC_3')
-            inputFolder = dir(fullfile(datasetPath, patient.name, '/', tempDir.name, '/', subDirs(j).name));
-            inputFolder = fixDir(inputFolder);
+        if subDirs(j).size == 21 || badSave%%along with this, check for if that patient has 21 files that all 
+            %star with 'Perfusion_jksdl_jfksld_jksldf' i will send you the actual name soon- can do an if-else 
+            % statement becuase if it meets one of these requirements you dont have to check for the other one 
+            if badSave
+                inputFolder = CreateCorrectSave(strcat(datasetPath, patient.name, '/', tempDir.name,'/'));
+            else
+                inputFolder = dir(fullfile(datasetPath, patient.name, '/', tempDir.name, '/', subDirs(j).name));
+                inputFolder = fixDir(inputFolder);
+            end
             
             contrast_l = 0; contrast_h = 160;      
             rescaleIntercept = 0;

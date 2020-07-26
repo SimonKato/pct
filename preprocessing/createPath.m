@@ -7,6 +7,6 @@ function absolutePath = createPath(relativePath)
 curDir = cd();
 
 cd(relativePath);
-absolutePath = pwd();
+absolutePath = strcat(pwd(),'\');
 cd(curDir);
 end

@@ -16,13 +16,14 @@
 %   Currently supported processing tools:
 %       segmentPM : Segments perfusion maps into their 6 components
 %       convertNCCT : converts NCCT image portion to .mat file type
+%       createOri
 %
 %Examples: 
 %   main segmentPM datasetPath='../../data/Perfusion\ Maps' outputPath='../../data/segmentedPerfusion\ Maps' segmentPM
 %
 %Important Notes:
 %   Most of the current functions will create a special folder within the
-%   outputFolder path appropiately named after the function called. Subject
+%   outputPath path appropiately named after the function called. Subject
 %   to change, however for the sake of calling multiple functions at once,
 %   this works best.
 %
@@ -37,8 +38,8 @@ function main(varargin)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%Generating Default variable values%%%%%%%%%%%%%%%
 
-datasetPath = '../data/'; %consider having a way of putting a dataset as an input parameter
-outputPath = '../data/results/';
+datasetPath = '../data/processed'; %consider having a way of putting a dataset as an input parameter
+outputPath = '../data/results'; %consider checking if it has been created
 createOri = false; 
 createGT = false;
 convertNCCT = false;
@@ -57,14 +58,14 @@ for curArg = varargin %1 : numArgs
     elseif contains(curArg, 'datasetPath=')
         lastIndex = find(curArg == '=', 1);
         datasetPath = curArg(lastIndex + 1:length(curArg));
-        if ~strcmp(datasetPath(end),'/')
-            datasetPath = [datasetPath '/'];
+        if ~strcmp(datasetPath(end),'\')
+            datasetPath = [datasetPath '\'];
         end
     elseif contains(curArg, 'outputPath=')
         lastIndex = find(curArg == '=', 1);
-        datasetPath = curArg(lastIndex + 1:length(curArg));
-        if ~strcmp(outputPath(end),'/')
-            outputPath = [inputFolder '/'];
+        outputPath = curArg(lastIndex + 1:length(curArg));
+        if ~strcmp(outputPath(end),'\')
+            outputPath = [outputPath '\'];
         end
     elseif strcmpi(curArg, 'segmentPM')
         segmentPM = true;
@@ -76,56 +77,57 @@ for curArg = varargin %1 : numArgs
 end
 
 datasetPath = createPath(datasetPath);
+outputPath = createPath(outputPath);
 
 if deidentify
-    deidentify(datasetPath,outputFolder)
+    deidentify(datasetPath, outputPath)
     
-    datasetPath = outputFolder;
+    datasetPath = outputPath;
 end
 
 if createGT && createOri
     try
-        mkdir(outputFolder,'vol_ori/');
+        mkdir(outputPath,'vol_ori');
     catch
     end
     
     try
-        mkdir(outputFolder,'GT/');
+        mkdir(outputPath,'GT');
     catch
     end
     
-    createOriFile(datasetPath, strcat(outputFolder, 'vol_ori/'));
-    createGTFile(strcat(outputFolder,'vol_ori/'),strcat(outputFolder,'GT/'));
+    createOriFile(datasetPath, strcat(outputPath, 'vol_ori'));
+    createGTFile(strcat(outputPath,'vol_ori'),strcat(outputPath,'GT'));
 elseif createOri
     try
-        mkdir(outputFolder,'vol_ori/');
+        mkdir(outputPath,'vol_ori');
     catch
     end
     
-    createOriFile(datasetPath, strcat(outputFolder,'vol_ori/'));
+     createOriFile(datasetPath, strcat(outputPath,'vol_ori'));
 elseif createGT
     try
-        mkdir(outputFolder,'GT/');
+        mkdir(outputPath,'GT');
     catch
     end
     
-    createGTFile(datasetPath,strcat(outputFolder, 'GT/'));
+    createGTFile(datasetPath,strcat(outputPath, 'GT'));
 end
 
 if segmentPM
     try
-        mkdir(outputFolder,'segmented_perfusion_maps/');
+        mkdir(outputPath,'segmented_perfusion_maps');
     catch
     end
-    segmentPerfusionMaps(datasetPath, strcat(outputPath,'segmented_perfusion_maps/'))
+    segmentPerfusionMaps(datasetPath, strcat(outputPath,'segmented_perfusion_maps'))
 end
 
 if convertNCCT
     try
-        mkdir(outputFolder,'NCCTdicom_mit/');
+        mkdir(outputPath,'NCCTdicom_mit');
     catch
     end
-    convertNCCT_MAT(datasetPath,strcat(outputPath,'NCCTdicom_mit/'))
+    convertNCCT_MAT(datasetPath,strcat(outputPath,'NCCTdicom_mit'))
 end
 
 end

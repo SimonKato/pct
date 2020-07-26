@@ -1,4 +1,4 @@
-function segmentPerfusionMaps(inputFolder, outputFolder)
+function SegmentPerfusionMaps(inputFolder, outputFolder)
 %Description: segments all Perfusion Map files within inputFolder to 6
 %segments: MIP, RCBV, TTP, rCBG, MTT, Delay maps *not sure if those are
 %correct
@@ -38,29 +38,34 @@ for patientNum = 1 : length(patients)
         fileImage = dicomread(filepath);
         fileInfo = dicominfo(filepath);
         
-        fileImage = fileInfo.RescaleSlope * fileImage + fileInfo.RescaleIntercept;
+        try
+            fileImage = fileInfo.RescaleSlope * fileImage + fileInfo.RescaleIntercept;
+        catch
+        end
         
         fileImageSize = size(fileImage);
         xsplit = fileImageSize(2)/3;
         ysplit = fileImageSize(1)/2;
-    
-        MIP = fileImage(1:ysplit, 1:xsplit,:);
-        MIP = segmentPerfusionMap_IsolateImage(MIP);
         
         rCBV =  fileImage(1:ysplit,xsplit + 1:2*xsplit,:);
-        rCBV = segmentPerfusionMap_IsolateImage(rCBV);
+        mask = SegmentPerfusionMap_FindMask(rCBV);
+    
+        MIP = fileImage(1:ysplit, 1:xsplit,:);
+        MIP = bsxfun(@times, MIP, cast(mask, 'like', MIP));
+        
+        rCBV = bsxfun(@times, rCBV, cast(mask, 'like', rCBV));
         
         TTP = fileImage(1:ysplit,2*xsplit + 1:3*xsplit,:);
-        TTP = segmentPerfusionMap_IsolateImage(TTP);
+        TTP = bsxfun(@times, TTP, cast(mask, 'like', TTP));
         
         rCBF = fileImage(ysplit + 1: 2*ysplit,1:xsplit,:);
-        rCBF = segmentPerfusionMap_IsolateImage(rCBF);
+        rCBF = bsxfun(@times, rCBF, cast(mask, 'like', rCBF));
         
         MTT = fileImage(ysplit + 1: 2*ysplit, xsplit + 1:2*xsplit,:);
-        MTT = segmentPerfusionMap_IsolateImage(MTT);
+        MTT = bsxfun(@times, MTT, cast(mask, 'like', MTT));
         
         Delay = fileImage(ysplit + 1: 2*ysplit, 2*xsplit + 1:3*xsplit, :);
-        Delay = segmentPerfusionMap_IsolateImage(Delay);
+        Delay = bsxfun(@times, Delay, cast(mask, 'like', Delay));
     
     
         save(strcat(outputFolder,'MIP/', num2str(patientNum,'%04.f'), '_', num2str(imageNum)),'MIP');
