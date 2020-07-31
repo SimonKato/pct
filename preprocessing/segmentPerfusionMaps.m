@@ -36,6 +36,10 @@ for patientNum = 1 : length(patients)
     for imageNum = 1: length(patientPics)
         filepath = fullfile(inputFolder, patients(patientNum).name, patientPics(imageNum).name);
         fileImage = dicomread(filepath);
+        if ndims(fileImage) == 2
+            %Assumes that the 2D always rgb sequence and not grey scale
+            fileImage = SegmentPerfusionMaps_DecodeImage(fileImage);
+        end
         fileInfo = dicominfo(filepath);
         
         try

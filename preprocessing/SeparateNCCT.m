@@ -1,7 +1,12 @@
-function SeparatePM(datasetPath, outputPath)
-
+function SeparateNCCT(datasetPath, outputPath)
 datasetPath = createPath(datasetPath);
 outputPath = createPath(outputPath);
+
+try
+    mkdir(outputPath, 'NCCT')
+    outputPath = strcat(outputPath,'NCCT/');
+catch
+end
 
 patients = dir(datasetPath);
 patients = fixDir(patients);
@@ -19,26 +24,18 @@ for i = 1: length(patients)
     for j = 1 : length(subDirs)
         tempName = subDirs(j).name;
         tempName = replace(tempName,' ','_');
-         if contains(tempName, '0.5_CE_4D') || contains(tempName, '0.5_CE_Perfusion')
+         if contains(tempName, 'W-O') || contains(tempName, '5.0_Head')
             files = dir(fullfile(datasetPath, patient.name, '/', tempDir.name, '/', subDirs(j).name));
             files = fixDir(files);
             
-            outputFolder = strcat(outputPath, patient.name, '_perfusion_maps/');
+            outputFolder = strcat(outputPath, patient.name, '_NCCT/');
             mkdir(outputFolder) 
             
             for fileNum = 1 : length(files)
                 curFile = strcat(datasetPath, patient.name, '/', tempDir.name, '/', subDirs(j).name, '/', files(fileNum).name);
-                fileInfo = dicominfo(fullfile(curFile));
-                
-                if strcmp(fileInfo.ImageType, 'DERIVED\SECONDARY\') 
-                    if not(isfield(fileInfo, 'SpecificCharacterSet')) 
-                        %Separate these files into a new folder.
-                        %Issue with some of the perfusion maps having this
-                        %field
-                        outputFile = strcat(outputFolder, files(fileNum).name);
-                        copyfile(curFile,outputFile)
-                    end
-                end
+                %fileInfo = dicominfo(fullfile(curFile));                
+                outputFile = strcat(outputFolder, files(fileNum).name);
+                copyfile(curFile,outputFile)
             end
          end
     end
