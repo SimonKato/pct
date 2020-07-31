@@ -1,4 +1,8 @@
 function createOriFile(datasetPath, outputFolder)
+
+datasetPath = createPath(datasetPath);
+outputFolder = createPath(outputFolder);
+
 patients = dir(datasetPath);
 patients = fixDir(patients);
 
@@ -12,14 +16,18 @@ for i = 1: length(patients)
     subDirs = dir(fullfile(datasetPath, '/', patient.name, '/', tempDir.name));
     subDirs = fixDir(subDirs);
     
-    badSave = CheckBadState(subDirs);
+    badSave = CreateOriFile_CheckBadSave(subDirs);
     
     for j = 1 : length(subDirs)
-        if subDirs(j).size == 21 || badSave%%along with this, check for if that patient has 21 files that all 
+        correctStats = CreateOriFile_CheckSizeName(subDirs(j));
+        if correctStats || badSave
+            %%along with this, check for if that patient has 21 files that all 
             %star with 'Perfusion_jksdl_jfksld_jksldf' i will send you the actual name soon- can do an if-else 
             % statement becuase if it meets one of these requirements you dont have to check for the other one 
             if badSave
-                inputFolder = CreateCorrectSave(strcat(datasetPath, patient.name, '/', tempDir.name,'/'));
+                inputFolder = CreateOriFile_CreateCorrectSave(strcat(datasetPath, patient.name, '/', tempDir.name,'/'));
+                inputFolder = dir(inputFolder);
+                inputFolder = fixDir(inputFolder);
             else
                 inputFolder = dir(fullfile(datasetPath, patient.name, '/', tempDir.name, '/', subDirs(j).name));
                 inputFolder = fixDir(inputFolder);

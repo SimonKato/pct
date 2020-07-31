@@ -24,11 +24,11 @@ E = [1200 0.69 0.92 0 0 0;
     36 0.029 0.029 0 0.61 0];
 
 % create phantom
-xtrue = phantom(512);
+xtrue = phantom(256);
 % xtrue = xtrue/max(xtrue(:));
 xtrue = rot90(xtrue);
 
-f.down = 1;
+f.down = 2;
 f.do_sparse = 1; % set to one for sparse angle case
 ig = image_geom('nx', 512, 'fov', 50, 'down', f.down);
 ig.mask = ig.circ > 0;
@@ -101,12 +101,10 @@ if ~isvar('xpwls'), printm 'iterative reconstruction'
 end
 
 % show results
-im plc 2 4
+im plc 2 2
 clim = [0 1];
 im(1, xtrue, 'high-dose', clim), cbar;
-im(2, fbp, 'FBP low-dose', clim), cbar
-im(3, fbpw, 'PW low-dose', clim), cbar
-im(4, xpwls, 'PWLS low-dose', clim), cbar
+im(2, xpwls, 'low-dose', clim), cbar
 xl(xpwls)
-im(5, hsino, 'sino'), cbar
-im(6, lsino, 'noisy sino'), cbar
+im(3, hsino, 'sino'), cbar
+im(4, lsino, 'noisy sino'), cbar
