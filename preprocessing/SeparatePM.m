@@ -1,7 +1,21 @@
 function SeparatePM(datasetPath, outputPath)
+%----------------------------------------
+% Created by Garrett Fullerton and Simon Kato
+% University of Florida, Dept. of Biomedical Engineering
+% Smart Medical Informatics Learning and Evaluation (SMILE) Laboratory
+% Dr. Ruogu Fang
+% 6/1/2020
+%----------------------------------------
+% datasetPath: relative/absolute path to folder which contains deidentified patients and which follows structure created by deidentify_dataset.m
+% outputPath: relative/absolute path to destination where perfusion maps should be copied to.
+%
+% Last Updated: 8/20/2020 by SK
+% Bug fixes
 
 datasetPath = createPath(datasetPath);
 outputPath = createPath(outputPath);
+
+if ~exist(outputPath,'dir'), mkdir(outputPath); end
 
 patients = dir(datasetPath);
 patients = fixDir(patients);
@@ -32,9 +46,6 @@ for i = 1: length(patients)
                 
                 if strcmp(fileInfo.ImageType, 'DERIVED\SECONDARY\') 
                     if not(isfield(fileInfo, 'SpecificCharacterSet')) 
-                        %Separate these files into a new folder.
-                        %Issue with some of the perfusion maps having this
-                        %field
                         outputFile = strcat(outputFolder, files(fileNum).name);
                         copyfile(curFile,outputFile)
                     end
